@@ -1,22 +1,19 @@
-﻿using FitnessApp.NotificationApi.Infrastructure;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
+using FitnessApp.NotificationApi.Infrastructure;
 
 namespace FitnessApp.NotificationApi.Factories
 {
     public class WebSocketFactory : IWebSocketFactory
     {
-        private Dictionary<string, List<WebSocketWrapper>> _webSocketsList = new Dictionary<string, List<WebSocketWrapper>>();
-                
+        private readonly Dictionary<string, List<WebSocketWrapper>> _webSocketsList = new Dictionary<string, List<WebSocketWrapper>>();
+
         public void Add(string userId, WebSocketWrapper webSocket)
         {
-            List<WebSocketWrapper> connectedWebSockets;
-            if (!_webSocketsList.TryGetValue(userId, out connectedWebSockets))
-            {
+            if (!_webSocketsList.TryGetValue(userId, out var connectedWebSockets))
                 connectedWebSockets = new List<WebSocketWrapper>();
-            }
+
             lock (_webSocketsList)
-            {   
+            {
                 connectedWebSockets.Add(webSocket);
                 _webSocketsList[userId] = connectedWebSockets;
             }
@@ -24,8 +21,7 @@ namespace FitnessApp.NotificationApi.Factories
 
         public void Remove(string userId, string sessionId)
         {
-            List<WebSocketWrapper> connectedWebSockets;
-            if (_webSocketsList.TryGetValue(userId, out connectedWebSockets))
+            if (_webSocketsList.TryGetValue(userId, out var connectedWebSockets))
             {
                 lock (_webSocketsList)
                 {
@@ -41,21 +37,15 @@ namespace FitnessApp.NotificationApi.Factories
         public WebSocketWrapper GetClient(string userId, string sessionId)
         {
             WebSocketWrapper result = null;
-            List<WebSocketWrapper> connectedWebSockets;
-            if (_webSocketsList.TryGetValue(userId, out connectedWebSockets))
-            {   
-                result = connectedWebSockets.FirstOrDefault(i => i.SessionId == sessionId);
-            }
+            if (_webSocketsList.TryGetValue(userId, out var connectedWebSockets))
+                result = connectedWebSockets.Find(i => i.SessionId == sessionId);
             return result;
         }
 
         public List<WebSocketWrapper> GetSessionsByClient(string userId)
         {
-            List<WebSocketWrapper> result;
-            if (!_webSocketsList.TryGetValue(userId, out result))
-            {
+            if (!_webSocketsList.TryGetValue(userId, out var result))
                 result = new List<WebSocketWrapper>();
-            }
             return result;
         }
     }

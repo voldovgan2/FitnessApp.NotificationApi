@@ -1,5 +1,5 @@
-﻿using FitnessApp.NotificationApi.Infrastructure;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using FitnessApp.NotificationApi.Infrastructure;
 
 namespace FitnessApp.NotificationApi.Factories
 {
