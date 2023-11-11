@@ -9,7 +9,7 @@
     <PackageReference Include="AspNet.Security.OAuth.Validation" Version="2.0.0" />
     <PackageReference Include="NATS.Client" Version="1.1.0" />
     <PackageReference Include="Serilog.Extensions.Logging.File" Version="1.1.0" />
-    <PackageReference Include="FitnessApp.Common" Version="0.2.0-alpha.39" />
+    <PackageReference Include="FitnessApp.Common" Version="0.2.0-alpha.40" />
   </ItemGroup>
 
 </Project>
