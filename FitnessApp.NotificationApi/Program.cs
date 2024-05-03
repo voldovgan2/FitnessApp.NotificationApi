@@ -53,14 +53,11 @@ else
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthentication();
-
-var webSocketOptions = new WebSocketOptions()
+app.UseWebSockets(new WebSocketOptions()
 {
     KeepAliveInterval = TimeSpan.FromSeconds(120),
-};
-app.UseWebSockets(webSocketOptions);
+});
 app.UseMiddleware<WebSocketManager>();
 
 app.Run();

@@ -9,19 +9,13 @@ using Microsoft.AspNetCore.Http;
 
 namespace FitnessApp.NotificationApi.Infrastructure
 {
-    public class WebSocketManager
+    public class WebSocketManager(RequestDelegate next)
     {
-        private readonly RequestDelegate _next;
-        public WebSocketManager(RequestDelegate next)
-        {
-            _next = next;
-        }
-
         public async Task Invoke(HttpContext context, IWebSocketFactory factory)
         {
             if (context.Request.Path != "/ws")
             {
-                await _next(context);
+                await next(context);
                 return;
             }
 

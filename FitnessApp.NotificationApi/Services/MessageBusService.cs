@@ -14,29 +14,19 @@ using NATS.Client;
 
 namespace FitnessApp.Services.NotificationApi
 {
-    public class MessageBusService : IHostedService
+    public class MessageBusService(
+        IServiceBus serviceBus,
+        IWebSocketFactory webSocketFactory,
+        IJsonSerializer serializer) : IHostedService
     {
-        private readonly IJsonSerializer _serializer;
-        private readonly IServiceBus _serviceBus;
-        private readonly IWebSocketFactory _webSocketFactory;
         private IAsyncSubscription _eventSubscription;
-
-        public MessageBusService(
-            IServiceBus serviceBus,
-            IWebSocketFactory webSocketFactory,
-            IJsonSerializer serializer)
-        {
-            _serviceBus = serviceBus;
-            _webSocketFactory = webSocketFactory;
-            _serializer = serializer;
-        }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            _eventSubscription = _serviceBus.SubscribeEvent(Topic.FOLLOW_REQUEST_CONFIRMED, async (sender, args) =>
+            _eventSubscription = serviceBus.SubscribeEvent(Topic.FOLLOW_REQUEST_CONFIRMED, async (sender, args) =>
             {
-                var integrationEvent = _serializer.DeserializeFromBytes<FollowRequestConfirmed>(args.Message.Data);
-                var sessions = _webSocketFactory.GetSessionsByClient(integrationEvent.UserId);
+                var integrationEvent = serializer.DeserializeFromBytes<FollowRequestConfirmed>(args.Message.Data);
+                var sessions = webSocketFactory.GetSessionsByClient(integrationEvent.UserId);
                 foreach (var session in sessions)
                 {
                     var webSocketMessage = new WebSocketMessage
@@ -49,7 +39,7 @@ namespace FitnessApp.Services.NotificationApi
                         },
                         MessagDateTime = DateTime.UtcNow
                     };
-                    byte[] bytes = _serializer.SerializeToBytes(webSocketMessage);
+                    byte[] bytes = serializer.SerializeToBytes(webSocketMessage);
                     await session.Socket.SendAsync(new ArraySegment<byte>(bytes, 0, bytes.Length), WebSocketMessageType.Text, true, CancellationToken.None);
                 }
             });
