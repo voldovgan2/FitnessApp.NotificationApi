@@ -2,7 +2,7 @@
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
-using FitnessApp.Common.Serializer.JsonSerializer;
+using FitnessApp.Common.Serializer;
 using FitnessApp.Common.ServiceBus.Nats;
 using FitnessApp.Common.ServiceBus.Nats.Events;
 using FitnessApp.Common.ServiceBus.Nats.Services;
@@ -14,10 +14,7 @@ using NATS.Client;
 
 namespace FitnessApp.Services.NotificationApi
 {
-    public class MessageBusService(
-        IServiceBus serviceBus,
-        IWebSocketFactory webSocketFactory,
-        IJsonSerializer serializer) : IHostedService
+    public class MessageBusService(IServiceBus serviceBus, IWebSocketFactory webSocketFactory) : IHostedService
     {
         private IAsyncSubscription _eventSubscription;
 
@@ -25,7 +22,7 @@ namespace FitnessApp.Services.NotificationApi
         {
             _eventSubscription = serviceBus.SubscribeEvent(Topic.FOLLOW_REQUEST_CONFIRMED, async (sender, args) =>
             {
-                var integrationEvent = serializer.DeserializeFromBytes<FollowRequestConfirmed>(args.Message.Data);
+                var integrationEvent = JsonConvertHelper.DeserializeFromBytes<FollowRequestConfirmed>(args.Message.Data);
                 var sessions = webSocketFactory.GetSessionsByClient(integrationEvent.UserId);
                 foreach (var session in sessions)
                 {
@@ -39,7 +36,7 @@ namespace FitnessApp.Services.NotificationApi
                         },
                         MessagDateTime = DateTime.UtcNow
                     };
-                    byte[] bytes = serializer.SerializeToBytes(webSocketMessage);
+                    byte[] bytes = JsonConvertHelper.SerializeToBytes(webSocketMessage);
                     await session.Socket.SendAsync(new ArraySegment<byte>(bytes, 0, bytes.Length), WebSocketMessageType.Text, true, CancellationToken.None);
                 }
             });

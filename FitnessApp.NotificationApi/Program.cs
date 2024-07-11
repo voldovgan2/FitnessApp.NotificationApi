@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using FitnessApp.Common.Serializer.JsonSerializer;
 using FitnessApp.Common.ServiceBus.Nats.Services;
 using FitnessApp.NotificationApi.Factories;
 using FitnessApp.NotificationApi.Infrastructure;
@@ -17,8 +16,6 @@ builder.Services.AddSingleton<IServiceBus, ServiceBus>();
 builder.Services.AddHostedService<FitnessApp.Services.NotificationApi.MessageBusService>();
 
 builder.Services.AddSingleton<IWebSocketFactory, WebSocketFactory>();
-
-builder.Services.AddTransient<IJsonSerializer, JsonSerializer>();
 
 builder.Services.AddAuthentication(opts =>
 {
