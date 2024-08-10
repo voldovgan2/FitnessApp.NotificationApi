@@ -38,6 +38,8 @@ builder.Services.AddAuthentication(opts =>
         };
     });
 
+builder.Services.AddHealthChecks();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -56,6 +58,7 @@ app.UseWebSockets(new WebSocketOptions()
     KeepAliveInterval = TimeSpan.FromSeconds(120),
 });
 app.UseMiddleware<WebSocketManager>();
+app.MapHealthChecks("/health");
 
 app.Run();
 
